@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manutenção do Hotel</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#17212b;--mute:#5b6b7a;--line:#d9e0e6;--brand:#1f4e6b;
+--urg:#c62828;--urgbg:#fdecea;--imp:#b26a00;--impbg:#fff3df;--nor:#1f6f8b;--norbg:#e5f3f8;--ok:#2e7d32;--okbg:#e8f5e9}
+@media(prefers-color-scheme:dark){:root{--bg:#10171d;--card:#18222b;--ink:#eef2f5;--mute:#9db0c0;--line:#2b3a47;--brand:#5aa7cf;
+--urg:#ff8a80;--urgbg:#3a1f1d;--imp:#ffc266;--impbg:#3a2c12;--nor:#7ccbe6;--norbg:#14303b;--ok:#81c784;--okbg:#17301a}}
+*{box-sizing:border-box}
+body{margin:0;font:18px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--brand);color:#fff;padding:14px 16px}
+@media(prefers-color-scheme:dark){header{color:#10171d}}
+header h1{margin:0;font-size:1.3rem}
+.who{font-size:.9rem;margin-top:4px;opacity:.95}
+.who button{background:none;border:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer;padding:0 4px}
+main{max-width:760px;margin:0 auto;padding:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+.big{width:100%;padding:18px;font-size:1.2rem;font-weight:700;border:0;border-radius:12px;background:var(--brand);color:#fff;cursor:pointer}
+@media(prefers-color-scheme:dark){.big{color:#10171d}}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 0 16px}
+@media(min-width:560px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:10px;text-align:center;cursor:pointer}
+.stat b{display:block;font-size:2rem;line-height:1.1}
+.stat span{font-size:.9rem;color:var(--mute)}
+.stat.u b{color:var(--urg)}.stat.i b{color:var(--imp)}.stat.n b{color:var(--nor)}.stat.d b{color:var(--ok)}
+.tabs{display:flex;gap:6px;margin:18px 0 12px}
+.tabs button{flex:1;padding:12px 6px;border:2px solid var(--line);background:var(--card);border-radius:10px;font-weight:600;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+@media(prefers-color-scheme:dark){.tabs button[aria-pressed=true]{color:#10171d}}
+.t{background:var(--card);border:1px solid var(--line);border-left:10px solid var(--nor);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;display:block;width:100%;text-align:left}
+.t.Urgente{border-left-color:var(--urg)}.t.Importante{border-left-color:var(--imp)}.t.Concluído{border-left-color:var(--ok)}
+.t h3{margin:4px 0;font-size:1.1rem}.t small{color:var(--mute)}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.85rem;font-weight:700}
+.b-Urgente{background:var(--urgbg);color:var(--urg)}.b-Importante{background:var(--impbg);color:var(--imp)}
+.b-Normal{background:var(--norbg);color:var(--nor)}.b-Concluído{background:var(--okbg);color:var(--ok)}
+.empty{text-align:center;color:var(--mute);padding:30px 10px}
+dialog{border:0;border-radius:14px;padding:0;width:min(94vw,560px);max-height:92vh;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.m{padding:18px}.m h2{margin:0 0 12px;font-size:1.3rem}
+label{display:block;font-weight:600;margin:12px 0 4px}
+input[type=text],textarea{width:100%;padding:12px;border:2px solid var(--line);border-radius:10px;background:var(--bg)}
+textarea{min-height:90px;resize:vertical}
+.urgs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.urgs label{margin:0;border:2px solid var(--line);border-radius:10px;padding:12px 4px;text-align:center;cursor:pointer;font-weight:700}
+.urgs input{position:absolute;opacity:0}
+.urgs input:checked+span{display:block}
+.urgs label:has(input:checked){outline:4px solid var(--brand);outline-offset:1px}
+.urgs .Urgente{background:var(--urgbg);color:var(--urg)}.urgs .Importante{background:var(--impbg);color:var(--imp)}.urgs .Normal{background:var(--norbg);color:var(--nor)}
+.row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.row button{flex:1;min-width:140px;padding:14px;border-radius:10px;border:2px solid var(--line);background:var(--card);font-weight:700;cursor:pointer}
+.row .go{background:var(--ok);border-color:var(--ok);color:#fff}
+.row .pri{background:var(--brand);border-color:var(--brand);color:#fff}
+@media(prefers-color-scheme:dark){.row .go,.row .pri{color:#10171d}}
+.hist{list-style:none;margin:8px 0 0;padding:0}
+.hist li{border-left:3px solid var(--line);padding:2px 0 10px 12px;font-size:.95rem}
+.hist small{color:var(--mute)}
+.desc{background:var(--bg);padding:10px;border-radius:10px;white-space:pre-wrap}
+.status{font-size:.8rem;margin-top:6px}
+.exp{background:none;border:2px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;margin-bottom:12px}
+:focus-visible{outline:4px solid #ffb300;outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔧 Manutenção do Hotel</h1>
+  <div class="who">Olá, <b id="nome"></b> <button id="mudar">(mudar nome)</button></div>
+  <div class="status" id="modo"></div>
+</header>
+<main>
+  <div class="stats" id="stats"></div>
+  <button class="big" id="novo">+ Novo pedido de reparação</button>
+  <div class="tabs" id="tabs">
+    <button data-v="abertos">Por resolver</button>
+    <button data-v="feitos">Concluídos</button>
+    <button data-v="registo">Registo</button>
+  </div>
+  <div id="lista"></div>
+</main>
+<dialog id="dlg"><div class="m" id="dm"></div></dialog>
+
+<!--
+  PARTILHA ENTRE PESSOAS (opcional mas recomendado):
+  Sem isto, os dados ficam só guardados NESTE dispositivo.
+  Ver instruções no fim da conversa para ligar ao Firebase (gratuito).
+-->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// >>> Cola aqui a configuração do Firebase (ou deixa null para modo local) <<<
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCTvGu8Ouj-BZ-t61-6Ut8YwY0Jb937sB4",
+  authDomain: "manutencao-hoteleira.firebaseapp.com",
+  projectId: "manutencao-hoteleira",
+  storageBucket: "manutencao-hoteleira.firebasestorage.app",
+  messagingSenderId: "497842824343",
+  appId: "1:497842824343:web:b094ad0b683dba10e135d2"
+};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = iso => new Date(iso).toLocaleString('pt-PT', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+const ORDEM = {Urgente:0, Importante:1, Normal:2};
+const get = k => { try { return localStorage.getItem(k); } catch(e) { return null; } };
+const set = (k,v) => { try { localStorage.setItem(k,v); } catch(e) {} };
+
+let tickets = [], view = 'abertos', nome = get('hotel_nome') || '', db = null;
+
+/* ---------- Armazenamento ---------- */
+function iniciarArmazenamento() {
+  if (FIREBASE_CONFIG && window.firebase) {
+    try {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.firestore();
+      $('#modo').textContent = '🟢 Ligado – todos veem os mesmos pedidos';
+      db.collection('tickets').onSnapshot(snap => { tickets = snap.docs.map(d => d.data()); desenhar(); },
+        () => { $('#modo').textContent = '🔴 Sem ligação ao servidor'; });
+      return;
+    } catch(e) { console.error(e); }
+  }
+  $('#modo').textContent = '🟡 Modo local – os dados ficam só neste dispositivo';
+  try { tickets = JSON.parse(get('hotel_tickets') || '[]'); } catch(e) { tickets = []; }
+  desenhar();
+}
+function guardar(t) {
+  const i = tickets.findIndex(x => x.id === t.id);
+  if (i >= 0) tickets[i] = t; else tickets.push(t);
+  if (db) db.collection('tickets').doc(t.id).set(t).catch(() => alert('Não foi possível guardar. Verifique a internet.'));
+  else set('hotel_tickets', JSON.stringify(tickets));
+  desenhar();
+}
+
+/* ---------- Nome ---------- */
+function pedirNome(depois) {
+  abrir(`<h2>Quem é você?</h2><p>O seu nome vai aparecer nos pedidos que criar ou concluir.</p>
+    <input type="text" id="inNome" value="${esc(nome)}" placeholder="Ex.: Ana Silva" autocomplete="name">
+    <div class="row"><button class="pri" id="okNome">Guardar</button></div>`);
+  $('#okNome').onclick = () => {
+    const v = $('#inNome').value.trim();
+    if (!v) { $('#inNome').focus(); return; }
+    nome = v; set('hotel_nome', v); $('#nome').textContent = v; $('#dlg').close(); if (depois) depois();
+  };
+}
+function abrir(html) { $('#dm').innerHTML = html; const d = $('#dlg'); if (!d.open) d.showModal(); }
+function fechar() { $('#dlg').close(); }
+
+/* ---------- Ecrã principal ---------- */
+function desenhar() {
+  const ab = tickets.filter(t => t.estado === 'aberto');
+  const c = u => ab.filter(t => t.urg === u).length;
+  $('#stats').innerHTML = `
+    <div class="stat u" data-f="Urgente"><b>${c('Urgente')}</b><span>Urgentes</span></div>
+    <div class="stat i" data-f="Importante"><b>${c('Importante')}</b><span>Importantes</span></div>
+    <div class="stat n" data-f="Normal"><b>${c('Normal')}</b><span>Normais</span></div>
+    <div class="stat d" data-f="feitos"><b>${tickets.length - ab.length}</b><span>Concluídos</span></div>`;
+  document.querySelectorAll('.stat').forEach(e => e.onclick = () => { view = e.dataset.f === 'feitos' ? 'feitos' : 'abertos'; desenhar(); });
+  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === view));
+
+  let h = '';
+  if (view === 'abertos') {
+    const l = ab.sort((a,b) => ORDEM[a.urg] - ORDEM[b.urg] || a.criadoEm.localeCompare(b.criadoEm));
+    h = l.length ? l.map(cartao).join('') : '<div class="empty">✅ Não há pedidos por resolver.<br>Carregue em “Novo pedido” para criar um.</div>';
+  } else if (view === 'feitos') {
+    const l = tickets.filter(t => t.estado === 'feito').sort((a,b) => b.feitoEm.localeCompare(a.feitoEm));
+    h = l.length ? l.map(cartao).join('') : '<div class="empty">Ainda não há pedidos concluídos.</div>';
+  } else {
+    const ev = tickets.flatMap(t => (t.hist||[]).map(e => ({...e, titulo:t.titulo, local:t.local, id:t.id}))).sort((a,b) => b.t.localeCompare(a.t));
+    h = `<button class="exp" id="csv">⬇ Descarregar registo (Excel)</button>` +
+      (ev.length ? `<ul class="hist">${ev.map(e => `<li><b>${esc(e.quem)}</b> ${e.acao} “${esc(e.titulo)}”${e.local ? ' ('+esc(e.local)+')' : ''}${e.txt ? `<br>💬 ${esc(e.txt)}` : ''}<br><small>${fmt(e.t)}</small></li>`).join('')}</ul>` : '<div class="empty">Ainda não há registos.</div>');
+  }
+  $('#lista').innerHTML = h;
+  document.querySelectorAll('.t').forEach(e => e.onclick = () => ver(e.dataset.id));
+  const csv = $('#csv'); if (csv) csv.onclick = exportar;
+}
+function cartao(t) {
+  const feito = t.estado === 'feito';
+  return `<button class="t ${feito ? 'Concluído' : t.urg}" data-id="${t.id}">
+    <span class="badge b-${feito ? 'Concluído' : t.urg}">${feito ? '✔ Concluído' : (t.urg === 'Urgente' ? '🔴 ' : t.urg === 'Importante' ? '🟠 ' : '🔵 ') + t.urg}</span>
+    <h3>${esc(t.titulo)}</h3>
+    ${t.local ? `<div>📍 ${esc(t.local)}</div>` : ''}
+    <small>Criado por ${esc(t.criadoPor)} em ${fmt(t.criadoEm)}${feito ? `<br>Concluído por ${esc(t.feitoPor)} em ${fmt(t.feitoEm)}` : ''}</small></button>`;
+}
+
+/* ---------- Novo pedido ---------- */
+function novo() {
+  if (!nome) return pedirNome(novo);
+  abrir(`<h2>Novo pedido de reparação</h2>
+    <label for="fT">O que precisa de ser reparado?</label>
+    <input type="text" id="fT" placeholder="Ex.: Torneira a pingar">
+    <label for="fL">Onde? (quarto, zona…)</label>
+    <input type="text" id="fL" placeholder="Ex.: Quarto 204">
+    <label for="fD">Mais detalhes (opcional)</label>
+    <textarea id="fD"></textarea>
+    <label>Quão urgente é?</label>
+    <div class="urgs">
+      <label class="Normal"><input type="radio" name="u" value="Normal" checked>🔵 Normal</label>
+      <label class="Importante"><input type="radio" name="u" value="Importante">🟠 Importante</label>
+      <label class="Urgente"><input type="radio" name="u" value="Urgente">🔴 Urgente</label>
+    </div>
+    <p style="color:var(--mute);font-size:.9rem">Criado por <b>${esc(nome)}</b>. A data fica guardada automaticamente.</p>
+    <div class="row"><button id="cx">Cancelar</button><button class="pri" id="ok">Criar pedido</button></div>`);
+  $('#cx').onclick = fechar;
+  $('#ok').onclick = () => {
+    const titulo = $('#fT').value.trim();
+    if (!titulo) { $('#fT').focus(); $('#fT').style.borderColor = 'var(--urg)'; return; }
+    const agora = new Date().toISOString();
+    guardar({id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2,6), titulo, local: $('#fL').value.trim(), desc: $('#fD').value.trim(),
+      urg: document.querySelector('input[name=u]:checked').value, criadoPor: nome, criadoEm: agora, estado: 'aberto',
+      hist: [{t: agora, quem: nome, acao: 'criou o pedido', txt: ''}]});
+    view = 'abertos'; fechar(); desenhar();
+  };
+  setTimeout(() => $('#fT').focus(), 50);
+}
+
+/* ---------- Ver / concluir pedido ---------- */
+function ver(id) {
+  if (!nome) return pedirNome(() => ver(id));
+  const t = tickets.find(x => x.id === id); if (!t) return;
+  const feito = t.estado === 'feito';
+  abrir(`<span class="badge b-${feito ? 'Concluído' : t.urg}">${feito ? '✔ Concluído' : t.urg}</span>
+    <h2 style="margin-top:8px">${esc(t.titulo)}</h2>
+    ${t.local ? `<p>📍 ${esc(t.local)}</p>` : ''}
+    ${t.desc ? `<div class="desc">${esc(t.desc)}</div>` : ''}
+    <label>Histórico</label>
+    <ul class="hist">${(t.hist||[]).map(e => `<li><b>${esc(e.quem)}</b> ${e.acao}${e.txt ? `<br>💬 ${esc(e.txt)}` : ''}<br><small>${fmt(e.t)}</small></li>`).join('')}</ul>
+    <label for="fC">${feito ? 'Adicionar um comentário' : 'Comentário (opcional)'}</label>
+    <textarea id="fC" placeholder="${feito ? 'Ex.: Foi preciso trocar a peça…' : 'Ex.: Trabalho feito, trocada a borracha.'}"></textarea>
+    <div class="row">
+      <button id="fe">Fechar</button>
+      <button id="cm">Guardar comentário</button>
+      ${feito ? '<button id="re">Reabrir pedido</button>' : '<button class="go" id="cc">✔ Marcar como concluído</button>'}
+    </div>`);
+  const regista = (acao, extra) => {
+    const txt = $('#fC').value.trim();
+    return {...t, ...extra, hist: [...(t.hist||[]), {t: new Date().toISOString(), quem: nome, acao, txt}]};
+  };
+  $('#fe').onclick = fechar;
+  $('#cm').onclick = () => {
+    if (!$('#fC').value.trim()) { $('#fC').focus(); return; }
+    guardar(regista('deixou um comentário')); ver(id);
+  };
+  if (feito) $('#re').onclick = () => { guardar(regista('reabriu o pedido', {estado:'aberto', feitoPor:null, feitoEm:null})); fechar(); };
+  else $('#cc').onclick = () => {
+    const agora = new Date().toISOString();
+    guardar(regista('concluiu o pedido', {estado:'feito', feitoPor:nome, feitoEm:agora})); fechar();
+  };
+}
+
+/* ---------- Exportar ---------- */
+function exportar() {
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const linhas = [['Data','Pessoa','Ação','Pedido','Local','Urgência','Comentário']];
+  tickets.forEach(t => (t.hist||[]).forEach(e => linhas.push([fmt(e.t), e.quem, e.acao, t.titulo, t.local, t.urg, e.txt])));
+  linhas.slice(1).sort((a,b) => 0);
+  const blob = new Blob(['\ufeff' + linhas.map(l => l.map(q).join(';')).join('\r\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'registo-manutencao-' + new Date().toISOString().slice(0,10) + '.csv'; a.click();
+}
+
+/* ---------- Arranque ---------- */
+$('#nome').textContent = nome || '(sem nome)';
+$('#mudar').onclick = () => pedirNome();
+$('#novo').onclick = novo;
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { view = b.dataset.v; desenhar(); });
+iniciarArmazenamento();
+if (!nome) pedirNome();
+</script>
+</body>
+</html>
